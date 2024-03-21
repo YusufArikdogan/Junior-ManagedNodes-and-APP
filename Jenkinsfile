@@ -39,9 +39,9 @@ pipeline {
                 sh 'cat ./nodejs/server/.env'
                 sh 'envsubst < react-env-template > ./react/client/.env'
                 sh 'cat ./react/client/.env'
-                sh 'docker build --force-rm -t "$DOCKERHUB_REGISTRY/$APP_REPO_NAME:latest" -f ./postgresql/Dockerfile .'
-                sh 'docker build --force-rm -t "$DOCKERHUB_REGISTRY/$APP_REPO_NAME:latest" -f ./nodejs/Dockerfile .'
-                sh 'docker build --force-rm -t "$DOCKERHUB_REGISTRY/$APP_REPO_NAME:latest" -f ./react/Dockerfile .'
+                sh 'docker build --force-rm -t "$DOCKERHUB_REGISTRY/$POSTGRE_REPO_NAME:latest" -f ./postgresql/Dockerfile .'
+                sh 'docker build --force-rm -t "$DOCKERHUB_REGISTRY/$NODEJS_REPO_NAME:latest" -f ./nodejs/Dockerfile .'
+                sh 'docker build --force-rm -t "$DOCKERHUB_REGISTRY/$REACT_REPO_NAME:latest" -f ./react/Dockerfile .'
                 sh 'docker image ls'
             }
         }
