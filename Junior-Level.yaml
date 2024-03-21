@@ -77,7 +77,7 @@
   become: true
   vars:
     container_name: postgre
-    image_name: insaniso/postgr:latest
+    image_name: insaniso/postgre:latest
   tasks:
     - name: Remove postgre container
       community.docker.docker_container:
