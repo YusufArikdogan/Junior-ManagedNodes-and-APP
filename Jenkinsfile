@@ -10,7 +10,9 @@ pipeline {
         DOCKERHUB_USERNAME = credentials('dockerhub-username')
         DOCKERHUB_PASSWORD = credentials('dockerhub-password')
         DOCKERHUB_REGISTRY = "insaniso"
-        APP_REPO_NAME = "junior-level"
+        POSTGRE_REPO_NAME = "postgre"
+        NODEJS_REPO_NAME = "nodejs"
+        REACT_REPO_NAME = "react"
         APP_NAME = "todo"
     }
 
@@ -37,9 +39,9 @@ pipeline {
                 sh 'cat ./nodejs/server/.env'
                 sh 'envsubst < react-env-template > ./react/client/.env'
                 sh 'cat ./react/client/.env'
-                sh 'docker build --force-rm -t "$DOCKERHUB_REGISTRY/$APP_REPO_NAME:postgr" -f ./postgresql/Dockerfile .'
-                sh 'docker build --force-rm -t "$DOCKERHUB_REGISTRY/$APP_REPO_NAME:nodejs" -f ./nodejs/Dockerfile .'
-                sh 'docker build --force-rm -t "$DOCKERHUB_REGISTRY/$APP_REPO_NAME:react" -f ./react/Dockerfile .'
+                sh 'docker build --force-rm -t "$DOCKERHUB_REGISTRY/$APP_REPO_NAME:latest" -f ./postgresql/Dockerfile .'
+                sh 'docker build --force-rm -t "$DOCKERHUB_REGISTRY/$APP_REPO_NAME:latest" -f ./nodejs/Dockerfile .'
+                sh 'docker build --force-rm -t "$DOCKERHUB_REGISTRY/$APP_REPO_NAME:latest" -f ./react/Dockerfile .'
                 sh 'docker image ls'
             }
         }
@@ -69,11 +71,7 @@ pipeline {
                 sh 'ls -l'
                 sh 'ansible --version'
                 sh 'ansible-inventory --graph'
-<<<<<<< HEAD
                 ansiblePlaybook credentialsId: 'ansible', disableHostKeyChecking: true, installation: 'ansible', inventory: 'inventory_aws_ec2', playbook: 'Junior-Level.yaml'
-=======
-                ansiblePlaybook credentialsId: 'ansible', disableHostKeyChecking: true, installation: 'ansible', inventory: 'inventory_junior.yml', playbook: 'Junior-Level.yaml'
->>>>>>> 6eb4c1d5e90ceeca78338c639243a1177874a8aa
             }
         }
 

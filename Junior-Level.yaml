@@ -77,7 +77,7 @@
   become: true
   vars:
     container_name: postgre
-    image_name: insaniso/junior-level:postgr
+    image_name: insaniso/postgr:latest
   tasks:
     - name: Remove postgre container
       community.docker.docker_container:
@@ -107,7 +107,7 @@
   become: true
   vars:
     container_name: nodejs
-    image_name: insaniso/junior-level:nodejs
+    image_name: insaniso/nodejs:latest
   tasks:
     - name: Remove nodejs container
       community.docker.docker_container:
@@ -133,7 +133,7 @@
   become: true
   vars:
     container_name: react
-    image_name: insaniso/junior-level:react
+    image_name: insaniso/react:latest
   tasks:
     - name: Remove react container
       community.docker.docker_container:
