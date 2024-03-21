@@ -50,9 +50,9 @@ pipeline {
             steps {
                 echo 'Pushing App Image to Docker Hub'
                 sh 'docker login --username $DOCKERHUB_USERNAME --password $DOCKERHUB_PASSWORD'
-                sh 'docker push $DOCKERHUB_REGISTRY/$APP_REPO_NAME:postgre'
-                sh 'docker push $DOCKERHUB_REGISTRY/$APP_REPO_NAME:nodejs'
-                sh 'docker push $DOCKERHUB_REGISTRY/$APP_REPO_NAME:react'
+                sh 'docker push $DOCKERHUB_REGISTRY/$POSTGRE_REPO_NAME:postgre'
+                sh 'docker push $DOCKERHUB_REGISTRY/$NODEJS_REPO_NAME:nodejs'
+                sh 'docker push $DOCKERHUB_REGISTRY/$REACT_REPO_NAME:react'
             }
         }
 
