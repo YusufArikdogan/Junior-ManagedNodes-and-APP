@@ -61,7 +61,7 @@
         state: latest
 
     - name: Include Docker Hub credentials
-      ansible.builtin_include_vars:
+      collections.ansible.builtin.include_vars:
         file: dockerhub_credentials.yml
         name: dockerhub_credentials
         vault_password_file: .
