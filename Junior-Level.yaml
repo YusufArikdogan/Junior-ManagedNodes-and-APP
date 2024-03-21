@@ -60,17 +60,19 @@
         name: awscli
         state: latest
 
-    - name: Include Docker Hub credentials
-      collections.ansible.builtin.include_vars:
-        file: dockerhub_credentials.yml
-        name: dockerhub_credentials
-        vault_password_file: .
-      no_log: true 
+    # - name: Include Docker Hub credentials
+    #   collections.ansible.builtin.include_vars:
+    #     file: dockerhub_credentials.yml
+    #     name: dockerhub_credentials
+    #     vault_password_file: .
+    #   no_log: true 
 
     - name: Login to Docker Hub
       ansible.builtin.docker_login:
-        username: "{{ dockerhub_credentials.dockerhub_username }}"
-        password: "{{ dockerhub_credentials.dockerhub_password }}"
+        username: "insaniso"
+        password: "dckr_pat_XgUyvGfEEwW9CWcNEP5lQazKlI8"
+        # username: "{{ dockerhub_credentials.dockerhub_username }}"
+        # password: "{{ dockerhub_credentials.dockerhub_password }}"
 
 - name: postgre database config
   hosts: _ansible_postgresql
