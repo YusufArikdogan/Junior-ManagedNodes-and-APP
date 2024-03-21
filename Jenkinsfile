@@ -69,7 +69,11 @@ pipeline {
                 sh 'ls -l'
                 sh 'ansible --version'
                 sh 'ansible-inventory --graph'
+<<<<<<< HEAD
                 ansiblePlaybook credentialsId: 'ansible', disableHostKeyChecking: true, installation: 'ansible', inventory: 'inventory_aws_ec2', playbook: 'Junior-Level.yaml'
+=======
+                ansiblePlaybook credentialsId: 'ansible', disableHostKeyChecking: true, installation: 'ansible', inventory: 'inventory_junior.yml', playbook: 'Junior-Level.yaml'
+>>>>>>> 6eb4c1d5e90ceeca78338c639243a1177874a8aa
             }
         }
 
