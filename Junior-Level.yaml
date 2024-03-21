@@ -1,0 +1,155 @@
+- name: install docker and config
+  hosts: _development_1
+  become: true
+  tasks:
+    - name: update all packages
+      ansible.builtin.yum:
+        name: '*'
+        state: latest
+
+    - name: Check if Docker is installed
+      ansible.builtin.command:
+        cmd: "rpm -q docker-ce"
+      register: docker_check
+      changed_when: false
+      check_mode: no
+
+    - name: Remove docker if installed from CentOS repo
+      ansible.builtin.yum:
+        name:
+          - docker
+          - docker-client
+          - docker-client-latest
+          - docker-common
+          - docker-latest
+          - docker-latest-logrotate
+          - docker-logrotate
+          - docker-engine
+        state: removed
+      when: docker_check.rc == 0
+
+    - name: Install yum utils
+      ansible.builtin.yum:
+        name: "{{ item }}"
+        state: latest
+      loop:
+        - yum-utils
+        - device-mapper-persistent-data
+        - lvm2
+        - unzip
+
+    - name: Install Docker
+      ansible.builtin.yum:
+        name: docker-ce
+        state: latest
+
+    - name: Add user ec2-user to docker group
+      ansible.builtin.user:
+        name: ec2-user
+        groups: docker
+        append: yes
+
+    - name: Start Docker service
+      ansible.builtin.service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Install aws cli
+      ansible.builtin.package:
+        name: awscli
+        state: latest
+
+    - name: Include Docker Hub credentials
+      ansible.builtin_include_vars:
+        file: dockerhub_credentials.yml
+        name: dockerhub_credentials
+        vault_password_file: .
+      no_log: true 
+
+    - name: Login to Docker Hub
+      ansible.builtin.docker_login:
+        username: "{{ dockerhub_credentials.dockerhub_username }}"
+        password: "{{ dockerhub_credentials.dockerhub_password }}"
+
+- name: postgre database config
+  hosts: _ansible_postgresql
+  become: true
+  vars:
+    container_name: postgre
+    image_name: postgres
+  tasks:
+    - name: Remove postgre container
+      community.docker.docker_container:
+        name: "{{ container_name }}"
+        state: absent
+        force_kill: true
+
+    - name: Remove postgre image
+      community.docker.docker_image:
+        name: "{{ image_name }}"
+        state: absent
+
+    - name: Launch postgresql docker container
+      community.docker.docker_container:
+        name: "{{ container_name }}"
+        image: "{{ image_name }}"
+        state: started
+        ports:
+          - "5432:5432"
+        env:
+          POSTGRES_PASSWORD: "Pp123456789"
+        volumes:
+          - /db-data:/var/lib/postgresql/data
+
+- name: Nodejs Server configuration
+  hosts: _ansible_nodejs
+  become: true
+  vars:
+    container_name: nodejs
+    image_name: insaniso/nodejs:latest
+  tasks:
+    - name: Remove nodejs container
+      community.docker.docker_container:
+        name: "{{ container_name }}"
+        state: absent
+        force_kill: true
+
+    - name: Remove nodejs image
+      community.docker.docker_image:
+        name: "{{ image_name }}"
+        state: absent
+
+    - name: Launch nodejs docker container
+      community.docker.docker_container:
+        name: "{{ container_name }}"
+        image: "{{ image_name }}"
+        state: started
+        ports:
+          - "5000:5000"
+
+- name: React UI Server configuration
+  hosts: _ansible_react
+  become: true
+  vars:
+    container_name: react
+    image_name: insaniso/react:latest
+  tasks:
+    - name: Remove react container
+      community.docker.docker_container:
+        name: "{{ container_name }}"
+        state: absent
+        force_kill: true
+
+    - name: Remove react image
+      community.docker.docker_image:
+        name: "{{ image_name }}"
+        state: absent
+
+    - name: Launch react docker container
+      community.docker.docker_container:
+        name: "{{ container_name }}"
+        image: "{{ image_name }}"
+        state: started
+        ports:
+          - "3000:3000"

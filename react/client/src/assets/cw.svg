@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 100">
+  <defs>
+    <style>
+      .yusuf-arikdogan {
+        font-family: Arial, sans-serif;
+        font-size: 36px;
+        font-weight: bold;
+        fill: #26306b; /* Mavi tonlarında koyu renk */
+        text-anchor: middle; /* Orta hizalama */
+      }
+      .todo {
+        font-family: Arial, sans-serif;
+        font-size: 48px; /* Daha büyük yazı boyutu */
+        font-weight: bold;
+        fill: rgba(0, 0, 0, 0.1); /* %10 opasite */
+        text-anchor: middle; /* Orta hizalama */
+      }
+      .circle {
+        fill: none; /* Daire çizgisi */
+        stroke: rgba(0, 0, 0, 0.1); /* Daire rengi %10 opasite */
+        stroke-width: 4px; /* Daire kalınlığı */
+      }
+    </style>
+  </defs>
+  <!-- "Yusuf Arikdogan" yazısı (ortalanmış) -->
+  <text x="200" y="60" class="yusuf-arikdogan">Yusuf Arikdogan</text>
+  <!-- TODO yazısı (orta hizalama, "Yusuf Arikdogan" yazısının üstünde) -->
+  <circle cx="200" cy="40" r="50" class="circle" /> <!-- Daire -->
+  <text x="200" y="50" class="todo">TODO</text> <!-- TODO -->
+</svg>
