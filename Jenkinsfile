@@ -66,15 +66,29 @@ pipeline {
             }
         }
 
-        stage('Deploy the App') {
+       stage('Deploy the App') {
             steps {
                 echo 'Deploy the App'
                 sh 'ls -l'
                 sh 'ansible --version'
                 sh 'ansible-inventory --graph'
-                ansiblePlaybook credentialsId: 'ansible', disableHostKeyChecking: true, installation: 'ansible', inventory: 'inventory_aws_ec2.yml', playbook: 'Junior-Level.yaml'
+
+        
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
+                    // Docker Hub'a giriş yap
+                    sh "docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD"
+                }
+
+                // Ansible playbook'u çalıştır
+                ansiblePlaybook credentialsId: 'ansible', 
+                            disableHostKeyChecking: true, 
+                            installation: 'ansible', 
+                            inventory: 'inventory_aws_ec2.yml', 
+                            playbook: 'Junior-Level.yaml'
             }
+            
         }
+
 
         stage('Destroy the infrastructure') {
             steps {
