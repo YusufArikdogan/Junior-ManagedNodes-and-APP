@@ -2,10 +2,23 @@
   hosts: _development_1
   become: true
   tasks:
-    - name: update all packages
+    - name: Update all packages
       ansible.builtin.yum:
         name: '*'
         state: latest
+
+    - name: Check if Python is installed
+      ansible.builtin.command:
+        cmd: "python3 --version"
+      register: python_check
+      changed_when: false
+      ignore_errors: true
+
+    - name: Install Python if not installed
+      ansible.builtin.package:
+        name: python3
+        state: present
+      when: python_check.rc != 0
 
     - name: Check if Docker is installed
       ansible.builtin.command:
@@ -14,7 +27,7 @@
       changed_when: false
       check_mode: no
 
-    - name: Remove docker if installed from CentOS repo
+    - name: Remove Docker if installed from CentOS repo
       ansible.builtin.yum:
         name:
           - docker
@@ -55,24 +68,15 @@
         state: started
         enabled: yes
 
-    - name: Install aws cli
+    - name: Install AWS CLI
       ansible.builtin.package:
         name: awscli
         state: latest
-
-    # - name: Include Docker Hub credentials
-    #   collections.ansible.builtin.include_vars:
-    #     file: dockerhub_credentials.yml
-    #     name: dockerhub_credentials
-    #     vault_password_file: .
-    #   no_log: true 
 
     - name: Login to Docker Hub
       ansible.builtin.docker_login:
         username: "insaniso"
         password: "dckr_pat_XgUyvGfEEwW9CWcNEP5lQazKlI8"
-        # username: "{{ dockerhub_credentials.dockerhub_username }}"
-        # password: "{{ dockerhub_credentials.dockerhub_password }}"
 
 - name: postgre database config
   hosts: _ansible_postgresql

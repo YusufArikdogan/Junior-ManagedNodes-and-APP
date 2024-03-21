@@ -74,9 +74,9 @@ pipeline {
                 sh 'ansible-inventory --graph'
 
         
-                withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'dockerhub_username', passwordVariable: 'dockerhub_password')]) {
                     // Docker Hub'a giriş yap
-                    sh "docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD"
+                    sh "docker login -u $dockerhub_username -p $dockerhub_password"
                 }
 
                 // Ansible playbook'u çalıştır
