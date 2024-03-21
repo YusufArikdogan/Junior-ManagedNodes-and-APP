@@ -87,6 +87,24 @@ pipeline {
                 """
             }
         }
+
+        stage('Destroy the infrastructure') {
+            steps {
+                timeout(time: 5, unit: 'DAYS') {
+                    input message: 'Approve terminate'
+                }
+                script {
+                    // Prune all local Docker images
+                    sh 'docker image prune -af'
+                    
+                    // Delete the ECR repository (this will remove all images in the repository)
+                    sh """
+                        aws ecr delete-repository --repository-name ${FRONTEND_REPO_NAME} --region ${AWS_REGION} --force
+                        aws ecr delete-repository --repository-name ${BACKEND_REPO_NAME} --region ${AWS_REGION} --force
+                    """
+                }
+            }
+        }
     }
 
     post {
