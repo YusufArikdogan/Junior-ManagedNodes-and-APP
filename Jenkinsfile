@@ -7,8 +7,8 @@ pipeline {
     environment {
         PATH=sh(script:"echo $PATH:/usr/local/bin", returnStdout:true).trim()
         AWS_REGION = "us-east-1"
-        DOCKERHUB_USERNAME = credentials('dockerhub-username')
-        DOCKERHUB_PASSWORD = credentials('dockerhub-password')
+        // DOCKERHUB_USERNAME = credentials('dockerhub-username')
+        // DOCKERHUB_PASSWORD = credentials('dockerhub-password')
         DOCKERHUB_REGISTRY = "insaniso"
         POSTGRE_REPO_NAME = "postgre"
         NODEJS_REPO_NAME = "nodejs"
