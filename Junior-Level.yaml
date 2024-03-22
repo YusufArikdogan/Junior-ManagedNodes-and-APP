@@ -60,12 +60,16 @@
         name: awscli
         state: latest
 
-    # - name: Include Docker Hub credentials
-    #   collections.ansible.builtin.include_vars:
-    #     file: dockerhub_credentials.yml
-    #     name: dockerhub_credentials
-    #     vault_password_file: .
-    #   no_log: true 
+    - name: unzip zip file
+      ansible.builtin.unarchive:
+        src: /home/ec2-user/awscliv2.zip
+        dest: /home/ec2-user
+        remote_src: True
+
+    - name: run the installer
+      ansible.builtin.command:
+        cmd: "./aws/install"
+        creates: /usr/local/bin/aws
 
     - name: Login to Docker Hub
       ansible.builtin.docker_login:
@@ -99,10 +103,10 @@
         state: started
         ports:
           - "5432:5432"
-        env:
-          POSTGRES_PASSWORD: "Pp123456789"
-        volumes:
-          - /db-data:/var/lib/postgresql/data
+      env:
+        POSTGRES_PASSWORD: "Pp123456789"
+      volumes:
+        - /db-data:/var/lib/postgresql/data
 
 - name: Nodejs Server configuration
   hosts: _ansible_nodejs
