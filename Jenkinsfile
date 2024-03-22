@@ -78,33 +78,28 @@ pipeline {
 
         stage('Destroy the infrastructure') {
             steps {
-                timeout(time: 5, unit: 'DAYS') {
-                    input message: 'Approve terminate'
+                timeout(time:5, unit:'DAYS'){
+                    input message:'Approve terminate'
                 }
-             node {
-                    sh """
-                    docker image prune -af
-                    terraform destroy --auto-approve
-                    """
-                }
+                sh """
+                docker image prune -af
+                terraform destroy --auto-approve
+                """
             }
         }
-
-
     }
 
     post {
         always {
             echo 'Deleting all local images'
             sh 'docker image prune -af'
-            sh 'terraform destroy --auto-approve'
         }
         failure {
             echo 'Clean-up due to failure'
             sh """
                 docker image prune -af
-                terraform destroy --auto-approve
                 """
         }
     }
 }
+
