@@ -1,8 +1,8 @@
-- name: install docker and config
+- name: Install Docker and configure
   hosts: _development_1
   become: true
   tasks:
-    - name: update all packages
+    - name: Update all packages
       ansible.builtin.yum:
         name: '*'
         state: latest
@@ -15,7 +15,7 @@
       check_mode: no
       ignore_errors: true
 
-    - name: Remove docker if installed from CentOS repo
+    - name: Remove Docker if installed from CentOS repo
       ansible.builtin.yum:
         name:
           - docker
@@ -26,7 +26,7 @@
           - docker-latest-logrotate
           - docker-logrotate
           - docker-engine
-        state: removed
+        state: absent
       when: docker_check.rc == 0
       ignore_errors: true
 
@@ -45,7 +45,7 @@
         name: docker-ce
         state: latest
 
-    - name: Add user ec2-user to docker group
+    - name: Add user ec2-user to Docker group
       ansible.builtin.user:
         name: ec2-user
         groups: docker
@@ -62,13 +62,13 @@
         name: awscli
         state: latest
 
-    - name: unzip zip file
+    - name: Unzip zip file
       ansible.builtin.unarchive:
         src: /home/ec2-user/awscliv2.zip
         dest: /home/ec2-user
-        remote_src: True
+        remote_src: true
 
-    - name: run the installer
+    - name: Run the installer
       ansible.builtin.command:
         cmd: "./aws/install"
         creates: /usr/local/bin/aws
@@ -80,25 +80,25 @@
         # username: "{{ dockerhub_credentials.dockerhub_username }}"
         # password: "{{ dockerhub_credentials.dockerhub_password }}"
 
-- name: postgre database config
+- name: PostgreSQL Database Configuration
   hosts: _ansible_postgresql
   become: true
   vars:
     container_name: postgre
     image_name: insaniso/postgre:latest
   tasks:
-    - name: Remove postgre container
+    - name: Remove PostgreSQL container
       community.docker.docker_container:
         name: "{{ container_name }}"
         state: absent
         force_kill: true
 
-    - name: Remove postgre image
+    - name: Remove PostgreSQL image
       community.docker.docker_image:
         name: "{{ image_name }}"
         state: absent
 
-    - name: Launch postgresql docker container
+    - name: Launch PostgreSQL Docker container
       community.docker.docker_container:
         name: "{{ container_name }}"
         image: "{{ image_name }}"
@@ -110,25 +110,25 @@
         volumes:
           - /db-data:/var/lib/postgresql/data
 
-- name: Nodejs Server configuration
+- name: Node.js Server Configuration
   hosts: _ansible_nodejs
   become: true
   vars:
     container_name: nodejs
     image_name: insaniso/nodejs:latest
   tasks:
-    - name: Remove nodejs container
+    - name: Remove Node.js container
       community.docker.docker_container:
         name: "{{ container_name }}"
         state: absent
         force_kill: true
 
-    - name: Remove nodejs image
+    - name: Remove Node.js image
       community.docker.docker_image:
         name: "{{ image_name }}"
         state: absent
 
-    - name: Launch nodejs docker container
+    - name: Launch Node.js Docker container
       community.docker.docker_container:
         name: "{{ container_name }}"
         image: "{{ image_name }}"
@@ -136,25 +136,25 @@
         ports:
           - "5000:5000"
 
-- name: React UI Server configuration
+- name: React UI Server Configuration
   hosts: _ansible_react
   become: true
   vars:
     container_name: react
     image_name: insaniso/react:latest
   tasks:
-    - name: Remove react container
+    - name: Remove React container
       community.docker.docker_container:
         name: "{{ container_name }}"
         state: absent
         force_kill: true
 
-    - name: Remove react image
+    - name: Remove React image
       community.docker.docker_image:
         name: "{{ image_name }}"
         state: absent
 
-    - name: Launch react docker container
+    - name: Launch React Docker container
       community.docker.docker_container:
         name: "{{ container_name }}"
         image: "{{ image_name }}"
