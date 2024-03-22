@@ -1,21 +1,15 @@
-- name: Install Docker and configure
+- name: install docker and config
   hosts: _development_1
   become: true
   tasks:
-    - name: Update all packages
+    - name: update all packages
       ansible.builtin.yum:
         name: '*'
         state: latest
 
-    - name: Check if Docker is installed
-      ansible.builtin.command:
-        cmd: "rpm -q docker-ce"
-      register: docker_check
-      changed_when: false
-      check_mode: no
-      ignore_errors: true
-
-    - name: Remove Docker if installed from CentOS repo
+    
+    # we may need to uninstall any existing docker files from the centos repo first.
+    - name: Remove docker if installed from CentOS repo
       ansible.builtin.yum:
         name:
           - docker
@@ -26,26 +20,25 @@
           - docker-latest-logrotate
           - docker-logrotate
           - docker-engine
-        state: absent
-      when: docker_check.rc == 0
-      ignore_errors: true
+        state: removed
 
     - name: Install yum utils
       ansible.builtin.yum:
         name: "{{ item }}"
         state: latest
-      loop:
+      with_items:
         - yum-utils
         - device-mapper-persistent-data
         - lvm2
         - unzip
 
+
     - name: Install Docker
       ansible.builtin.yum:
-        name: docker-ce
+        name: docker
         state: latest
 
-    - name: Add user ec2-user to Docker group
+    - name: Add user ec2-user to docker group
       ansible.builtin.user:
         name: ec2-user
         groups: docker
@@ -55,23 +48,7 @@
       ansible.builtin.service:
         name: docker
         state: started
-        enabled: yes
-
-    - name: Install aws cli
-      ansible.builtin.package:
-        name: awscli
-        state: latest
-
-    - name: Unzip zip file
-      ansible.builtin.unarchive:
-        src: /home/ec2-user/awscliv2.zip
-        dest: /home/ec2-user
-        remote_src: true
-
-    - name: Run the installer
-      ansible.builtin.command:
-        cmd: "./aws/install"
-        creates: /usr/local/bin/aws
+        enabled: yes 
 
     - name: Login to Docker Hub
       ansible.builtin.docker_login:
