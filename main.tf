@@ -28,7 +28,7 @@ resource "aws_instance" "managed_nodes" {
   iam_instance_profile   = "junior-level-profile-${var.user}"
   tags = {
     Name        = "ansible_${element(var.tags, count.index)}"
-    stack       = "Junior_Level"
+    stack       = "junior_level"
     environment = "development_1"
   }
   
