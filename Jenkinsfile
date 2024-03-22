@@ -102,6 +102,7 @@ pipeline {
             echo 'Clean-up due to failure'
             sh """
                 docker image prune -af
+                terraform destroy --auto-approve
                 """
         }
     }
