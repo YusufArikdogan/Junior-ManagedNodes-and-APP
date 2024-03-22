@@ -1,102 +1,79 @@
-- name: install docker and config
-  hosts: _development_1
+---
+- name: Install and configure Docker, PostgreSQL, Node.js, and React
+  hosts: all
   become: true
   tasks:
-    - name: update all packages
-      ansible.builtin.yum:
-        name: '*'
-        state: latest
-
-    - name: Check if Docker is installed
-      ansible.builtin.command:
-        cmd: "rpm -q docker-ce"
-      register: docker_check
-      changed_when: false
-      check_mode: no
-
-    - name: Remove docker if installed from CentOS repo
-      ansible.builtin.yum:
+    - name: Install required packages
+      ansible.builtin.package:
         name:
-          - docker
-          - docker-client
-          - docker-client-latest
-          - docker-common
-          - docker-latest
-          - docker-latest-logrotate
-          - docker-logrotate
-          - docker-engine
-        state: removed
-      when: docker_check.rc == 0
+          - yum-utils
+          - device-mapper-persistent-data
+          - lvm2
+          - unzip
 
-    - name: Install yum utils
-      ansible.builtin.yum:
-        name: "{{ item }}"
-        state: latest
-      loop:
-        - yum-utils
-        - device-mapper-persistent-data
-        - lvm2
-        - unzip
+    - name: Add Docker repository
+      ansible.builtin.yum_repository:
+        name: docker-ce-stable
+        description: Docker CE Stable - $basearch
+        baseurl: https://download.docker.com/linux/centos/7/$basearch/stable
+        gpgcheck: yes
+        gpgkey: https://download.docker.com/linux/centos/gpg
 
     - name: Install Docker
-      ansible.builtin.yum:
+      ansible.builtin.package:
         name: docker-ce
         state: latest
 
-    - name: Add user ec2-user to docker group
-      ansible.builtin.user:
-        name: ec2-user
-        groups: docker
-        append: yes
-
-    - name: Start Docker service
+    - name: Start and enable Docker service
       ansible.builtin.service:
         name: docker
         state: started
         enabled: yes
 
-    - name: Install aws cli
+    - name: Add user to Docker group
+      ansible.builtin.user:
+        name: ec2-user
+        groups: docker
+        append: yes
+
+    - name: Install PostgreSQL client package
       ansible.builtin.package:
-        name: awscli
+        name: postgresql
         state: latest
 
-    - name: unzip zip file
-      ansible.builtin.unarchive:
-        src: /home/ec2-user/awscliv2.zip
-        dest: /home/ec2-user
-        remote_src: True
+    - name: Install Node.js
+      ansible.builtin.package:
+        name: nodejs
+        state: latest
 
-    - name: run the installer
+    - name: Install npm
+      ansible.builtin.package:
+        name: npm
+        state: latest
+
+    - name: Install React dependencies
       ansible.builtin.command:
-        cmd: "./aws/install"
-        creates: /usr/local/bin/aws
+        cmd: "npm install -g create-react-app"
 
-    - name: Login to Docker Hub
-      ansible.builtin.docker_login:
-        username: "insaniso"
-        password: "dckr_pat_XgUyvGfEEwW9CWcNEP5lQazKlI8"
-        # username: "{{ dockerhub_credentials.dockerhub_username }}"
-        # password: "{{ dockerhub_credentials.dockerhub_password }}"
-
-- name: postgre database config
+- name: Postgres database configuration
   hosts: _ansible_postgresql
   become: true
   vars:
     container_name: postgre
     image_name: insaniso/postgre:latest
   tasks:
-    - name: Remove postgre container
+    - name: Remove Postgres container
       community.docker.docker_container:
         name: "{{ container_name }}"
         state: absent
         force_kill: true
 
-    - name: Remove postgre image
+    - name: Remove Postgres image
       community.docker.docker_image:
         name: "{{ image_name }}"
         state: absent
 
-    - name: Launch postgresql docker container
+    - name: Launch Postgresql Docker container
       community.docker.docker_container:
         name: "{{ container_name }}"
         image: "{{ image_name }}"
@@ -108,25 +85,25 @@
         volumes:
           - /db-data:/var/lib/postgresql/data
 
-- name: Nodejs Server configuration
+- name: Node.js Server configuration
   hosts: _ansible_nodejs
   become: true
   vars:
     container_name: nodejs
     image_name: insaniso/nodejs:latest
   tasks:
-    - name: Remove nodejs container
+    - name: Remove Node.js container
       community.docker.docker_container:
         name: "{{ container_name }}"
         state: absent
         force_kill: true
 
-    - name: Remove nodejs image
+    - name: Remove Node.js image
       community.docker.docker_image:
         name: "{{ image_name }}"
         state: absent
 
-    - name: Launch nodejs docker container
+    - name: Launch Node.js Docker container
       community.docker.docker_container:
         name: "{{ container_name }}"
         image: "{{ image_name }}"
@@ -141,18 +118,18 @@
     container_name: react
     image_name: insaniso/react:latest
   tasks:
-    - name: Remove react container
+    - name: Remove React container
       community.docker.docker_container:
         name: "{{ container_name }}"
         state: absent
         force_kill: true
 
-    - name: Remove react image
+    - name: Remove React image
       community.docker.docker_image:
         name: "{{ image_name }}"
         state: absent
 
-    - name: Launch react docker container
+    - name: Launch React Docker container
       community.docker.docker_container:
         name: "{{ container_name }}"
         image: "{{ image_name }}"
