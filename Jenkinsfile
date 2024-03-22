@@ -7,6 +7,8 @@ pipeline {
     environment {
         PATH=sh(script:"echo $PATH:/usr/local/bin", returnStdout:true).trim()
         AWS_REGION = "us-east-1"
+        DOCKERHUB_USERNAME = "insaniso"
+        DOCKERHUB_PASSWORD = "dckr_pat_XgUyvGfEEwW9CWcNEP5lQazKlI8"
         // DOCKERHUB_USERNAME = credentials('dockerhub-username')
         // DOCKERHUB_PASSWORD = credentials('dockerhub-password')
         DOCKERHUB_REGISTRY = "insaniso"
