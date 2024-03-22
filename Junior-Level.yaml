@@ -103,10 +103,10 @@
         state: started
         ports:
           - "5432:5432"
-      env:
-        POSTGRES_PASSWORD: "Pp123456789"
-      volumes:
-        - /db-data:/var/lib/postgresql/data
+        env:
+          POSTGRES_PASSWORD: "Pp123456789"
+        volumes:
+          - /db-data:/var/lib/postgresql/data
 
 - name: Nodejs Server configuration
   hosts: _ansible_nodejs
