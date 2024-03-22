@@ -78,15 +78,18 @@ pipeline {
 
         stage('Destroy the infrastructure') {
             steps {
-                timeout(time:5, unit:'DAYS'){
-                    input message:'Approve terminate'
+                timeout(time: 5, unit: 'DAYS') {
+                    input message: 'Approve terminate'
                 }
-                sh """
-                docker image prune -af
-                terraform destroy --auto-approve
-                """
+             node {
+                    sh """
+                    docker image prune -af
+                    terraform destroy --auto-approve
+                    """
+                }
             }
         }
+
 
     }
 
