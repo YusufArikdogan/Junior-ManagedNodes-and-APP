@@ -22,8 +22,16 @@ pipeline {
         stage('Create Infrastructure for the App') {
             steps {
                 echo 'Creating Infrastructure'
-                sh 'terraform init'
-                sh 'terraform apply --auto-approve'
+                script {
+                    // Check if infrastructure already exists
+                    def infraExists = sh(script: 'terraform state list', returnStatus: true) == 0
+                    if (!infraExists) {
+                        sh 'terraform init'
+                        sh 'terraform apply --auto-approve'
+                    } else {
+                        echo 'Infrastructure already exists. Skipping...'
+                    }
+                }
             }
         }
 
@@ -31,7 +39,6 @@ pipeline {
             steps {
                 echo 'Building App Image'
                 script {
-                    // Assume you retrieve NODE_IP and DB_HOST from Terraform outputs
                     env.NODE_IP = sh(script: 'terraform output -raw node_public_ip', returnStdout:true).trim()
                     env.DB_HOST = sh(script: 'terraform output -raw postgre_private_ip', returnStdout:true).trim()
                 }
@@ -58,13 +65,11 @@ pipeline {
             }
         }
 
-        stage('wait the instance') {
+        stage('Wait for the instance') {
             steps {
-                script {
-                    echo 'Waiting for the instance'
-                    id = sh(script: 'aws ec2 describe-instances --filters Name=tag-value,Values=ansible_postgresql Name=instance-state-name,Values=running --query Reservations[*].Instances[*].[InstanceId] --output text',  returnStdout:true).trim()
-                    sh 'aws ec2 wait instance-status-ok --instance-ids $id'
-                }
+                echo 'Waiting for the instance'
+                id = sh(script: 'aws ec2 describe-instances --filters Name=tag-value,Values=ansible_postgresql Name=instance-state-name,Values=running --query Reservations[*].Instances[*].[InstanceId] --output text',  returnStdout:true).trim()
+                sh 'aws ec2 wait instance-status-ok --instance-ids $id'
             }
         }
 
@@ -83,6 +88,7 @@ pipeline {
                 timeout(time:5, unit:'DAYS'){
                     input message:'Approve terminate'
                 }
+                echo 'Destroying the infrastructure'
                 sh """
                 docker image prune -af
                 terraform destroy --auto-approve
@@ -96,7 +102,6 @@ pipeline {
         always {
             echo 'Deleting all local images'
             sh 'docker image prune -af'
-            // sh 'terraform destroy --auto-approve'
         }
         failure {
             echo 'Clean-up due to failure'
