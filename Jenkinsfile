@@ -19,11 +19,26 @@ pipeline {
     }
 
     stages {
-        stage('Create Infrastructure for the App') {
+        
+        stage('Checkout Code') {
             steps {
-                echo 'Creating Infrastructure'
-                sh 'terraform init'
-                sh 'terraform apply --auto-approve'
+                checkout scm
+            }
+        }
+        
+        stage('Check Existing Infrastructure') {
+            steps {
+                script {
+                    def terraformDir = '.terraform'
+                    if (fileExists(terraformDir)) {
+                        echo "Terraform directory already exists. Skipping initialization and applying changes."
+                    } else {
+                        echo "No existing Terraform directory found. Initializing Terraform."
+                        sh 'terraform init'
+                        echo "Applying Terraform changes."
+                        sh 'terraform apply --auto-approve'
+                    }
+                }
             }
         }
 
