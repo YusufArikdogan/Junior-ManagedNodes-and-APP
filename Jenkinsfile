@@ -1,26 +1,24 @@
 pipeline {
     agent any
-    
+    tools {
+        terraform 'terraform'
+    }
+
     environment {
-        PREVIOUS_COMMIT = sh(script: 'cat previous_commit.txt', returnStdout: true).trim()
-        CURRENT_COMMIT = sh(script: 'git rev-parse HEAD', returnStdout: true).trim()
+        PATH=sh(script:"echo $PATH:/usr/local/bin", returnStdout:true).trim()
+        AWS_REGION = "us-east-1"
+        DOCKERHUB_USERNAME = "insaniso"
+        DOCKERHUB_PASSWORD = "dckr_pat_XgUyvGfEEwW9CWcNEP5lQazKlI8"
+        // DOCKERHUB_USERNAME = credentials('dockerhub_username')
+        // DOCKERHUB_PASSWORD = credentials('dockerhub_password')
+        DOCKERHUB_REGISTRY = "insaniso"
+        POSTGRE_REPO_NAME = "postgre"
+        NODEJS_REPO_NAME = "nodejs"
+        REACT_REPO_NAME = "react"
+        APP_NAME = "todo"
     }
 
     stages {
-        stage('Check for Changes') {
-            steps {
-                script {
-                    if (PREVIOUS_COMMIT == CURRENT_COMMIT) {
-                        echo "No changes detected. Skipping build."
-                        currentBuild.result = 'ABORTED' // Skip the build
-                    } else {
-                        echo "Changes detected. Proceeding with the build."
-                        sh "echo ${CURRENT_COMMIT} > previous_commit.txt" // Update the previous commit file
-                    }
-                }
-            }
-        }
-
         stage('Create Infrastructure for the App') {
             steps {
                 echo 'Creating Infrastructure'
