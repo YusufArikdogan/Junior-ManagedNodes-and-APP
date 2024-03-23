@@ -29,11 +29,11 @@ pipeline {
         stage('Check Existing Infrastructure') {
             steps {
                 script {
-                    def terraformDir = 'terraform.tfstate'
-                    if (fileExists(terraformDir)) {
-                        echo "Terraform directory already exists. Skipping initialization and applying changes."
+                    def terraformOutput = sh(script: 'terraform output -json', returnStdout: true).trim()
+                    if (terraformOutput.contains("node_public_ip")) {
+                        echo "Existing infrastructure found. Skipping initialization and applying changes."
                     } else {
-                        echo "No existing Terraform directory found. Initializing Terraform."
+                        echo "No existing infrastructure found. Initializing Terraform."
                         sh 'terraform init'
                         echo "Applying Terraform changes."
                         sh 'terraform apply --auto-approve'
