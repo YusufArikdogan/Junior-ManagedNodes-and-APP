@@ -29,7 +29,7 @@ pipeline {
         stage('Check Existing Infrastructure') {
             steps {
                 script {
-                    def terraformDir = '.terraform'
+                    def terraformDir = 'terraform.tfstate'
                     if (fileExists(terraformDir)) {
                         echo "Terraform directory already exists. Skipping initialization and applying changes."
                     } else {
