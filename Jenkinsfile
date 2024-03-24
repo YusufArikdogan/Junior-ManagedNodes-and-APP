@@ -4,20 +4,6 @@ pipeline {
         terraform 'terraform'
     }
 
-    environment {
-        PATH=sh(script:"echo $PATH:/usr/local/bin", returnStdout:true).trim()
-        AWS_REGION = "us-east-1"
-        DOCKERHUB_USERNAME = "insaniso"
-        DOCKERHUB_PASSWORD = "dckr_pat_XgUyvGfEEwW9CWcNEP5lQazKlI8"
-        // DOCKERHUB_USERNAME = credentials('dockerhub_username')
-        // DOCKERHUB_PASSWORD = credentials('dockerhub_password')
-        DOCKERHUB_REGISTRY = "insaniso"
-        POSTGRE_REPO_NAME = "postgre"
-        NODEJS_REPO_NAME = "nodejs"
-        REACT_REPO_NAME = "react"
-        APP_NAME = "todo"
-    }
-
     stages {
         
         stage('Checkout Code') {
@@ -50,7 +36,6 @@ pipeline {
             steps {
                 echo 'Building App Image'
                 script {
-                    // Assume you retrieve NODE_IP and DB_HOST from Terraform outputs
                     env.NODE_IP = sh(script: 'terraform output -raw node_public_ip', returnStdout:true).trim()
                     env.DB_HOST = sh(script: 'terraform output -raw postgre_private_ip', returnStdout:true).trim()
                 }
@@ -60,9 +45,9 @@ pipeline {
                 sh 'cat ./nodejs/server/.env'
                 sh 'envsubst < react-env-template > ./react/client/.env'
                 sh 'cat ./react/client/.env'
-                sh 'docker build --force-rm -t "$DOCKERHUB_REGISTRY/$POSTGRE_REPO_NAME:latest" -f ./postgresql/Dockerfile .'
-                sh 'docker build --force-rm -t "$DOCKERHUB_REGISTRY/$NODEJS_REPO_NAME:latest" -f ./nodejs/Dockerfile .'
-                sh 'docker build --force-rm -t "$DOCKERHUB_REGISTRY/$REACT_REPO_NAME:latest" -f ./react/Dockerfile .'
+                sh 'docker build --force-rm -t "insaniso/postgre:latest" -f ./postgresql/Dockerfile .'
+                sh 'docker build --force-rm -t "insaniso/nodejs:latest" -f ./nodejs/Dockerfile .'
+                sh 'docker build --force-rm -t "insaniso/react:latest" -f ./react/Dockerfile .'
                 sh 'docker image ls'
             }
         }
@@ -70,18 +55,20 @@ pipeline {
         stage('Push Image to Docker Hub') {
             steps {
                 echo 'Pushing App Image to Docker Hub'
-                sh 'docker login --username $DOCKERHUB_USERNAME --password $DOCKERHUB_PASSWORD'
-                sh 'docker push $DOCKERHUB_REGISTRY/$POSTGRE_REPO_NAME:latest'
-                sh 'docker push $DOCKERHUB_REGISTRY/$NODEJS_REPO_NAME:latest'
-                sh 'docker push $DOCKERHUB_REGISTRY/$REACT_REPO_NAME:latest'
+                withCredentials([usernamePassword(credentialsId: 'docker', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
+                    sh 'docker login --username $DOCKERHUB_USERNAME --password $DOCKERHUB_PASSWORD'
+                    sh 'docker push insaniso/postgre:latest'
+                    sh 'docker push insaniso/nodejs:latest'
+                    sh 'docker push insaniso/react:latest'
+                }
             }
         }
 
-        stage('wait the instance') {
+        stage('Wait for the Instance') {
             steps {
                 script {
                     echo 'Waiting for the instance'
-                    id = sh(script: 'aws ec2 describe-instances --filters Name=tag-value,Values=ansible_postgresql Name=instance-state-name,Values=running --query Reservations[*].Instances[*].[InstanceId] --output text',  returnStdout:true).trim()
+                    id = sh(script: 'aws ec2 describe-instances --filters Name=tag-value,Values=ansible_postgresql Name=instance-state-name,Values=running --query Reservations[*].Instances[*].[InstanceId] --output text',  returnStdout: true).trim()
                     sh 'aws ec2 wait instance-status-ok --instance-ids $id'
                 }
             }
@@ -97,10 +84,10 @@ pipeline {
             }
         }
 
-        stage('Destroy the infrastructure') {
+        stage('Destroy the Infrastructure') {
             steps {
-                timeout(time:5, unit:'DAYS'){
-                    input message:'Approve terminate'
+                timeout(time: 5, unit: 'DAYS') {
+                    input message: 'Approve terminate'
                 }
                 sh """
                 docker image prune -af
