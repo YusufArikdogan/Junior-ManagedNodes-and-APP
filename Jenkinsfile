@@ -98,11 +98,12 @@ pipeline {
         }
 
         stage('Output IPs') {
-        steps {
-            script {
-                def reactIP = sh(script: 'terraform output -raw node_public_ip', returnStdout: true).trim()
+            steps {
+                script {
+                    def reactIP = sh(script: 'terraform output -raw node_public_ip', returnStdout: true).trim()
 
-                echo "ReactAppURL: http://${nodeIP}"
+                    echo "ReactAppURL: http://${nodeIP}"
+                }
             }
         }
 
