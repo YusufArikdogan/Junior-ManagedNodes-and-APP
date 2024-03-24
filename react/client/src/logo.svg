@@ -28,4 +28,3 @@
   <circle cx="7200" cy="1440" r="1800" class="circle" /> <!-- Daire -->
   <text x="7200" y="1800" class="todo">TODO</text> <!-- TODO -->
 </svg>
-
