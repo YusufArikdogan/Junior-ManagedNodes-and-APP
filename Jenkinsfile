@@ -115,7 +115,7 @@ pipeline {
         always {
             echo 'Deleting all local images'
             sh 'docker image prune -af'
-            // sh 'terraform destroy --auto-approve'
+            sh 'terraform destroy --auto-approve'
         }
         failure {
             echo 'Clean-up due to failure'
