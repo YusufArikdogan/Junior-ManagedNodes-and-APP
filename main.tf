@@ -24,7 +24,7 @@ resource "aws_instance" "managed_nodes" {
   count                  = 3
   instance_type          = "t2.micro"
   key_name               = "yusufkey"
-  vpc_security_group_ids = [aws_security_group.app_security_group[0].id]
+  vpc_security_group_ids = [aws_security_group.react_security_group.id, aws_security_group.nodejs_security_group.id, aws_security_group.postgresql_security_group.id]
   iam_instance_profile   = "junior-level-profile-${var.user}"
   tags = {
     Name        = "ansible_${element(var.tags, count.index)}"
@@ -38,24 +38,59 @@ resource "aws_instance" "managed_nodes" {
     EOF
 }
 
-resource "aws_security_group" "app_security_group" {
-  count = length(var.tags)
-
-  name = "${var.tags[count.index]}-security-group"
+resource "aws_security_group" "react_security_group" {
+  name = "react-security-group"
   tags = {
-    Name = "${var.tags[count.index]} Security Group"
+    Name = "react Security Group"
   }
 
-  dynamic "ingress" {
-    for_each = var.tags
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 
-    content {
-      from_port       = ingress.value == "postgresql" ? 5432 : ingress.value == "nodejs" ? 5000 : 80
-      to_port         = ingress.value == "postgresql" ? 5432 : ingress.value == "nodejs" ? 5000 : 80
-      protocol        = "tcp"
-      cidr_blocks     = ingress.value == "react" ? ["0.0.0.0/0"] : []
-      security_groups = ingress.value == "nodejs" ? [aws_security_group.app_security_group[(count.index + 2) % length(var.tags)].id] : []
-    }
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+resource "aws_security_group" "nodejs_security_group" {
+  name = "nodejs-security-group"
+  tags = {
+    Name = "nodejs Security Group"
+  }
+
+  ingress {
+    from_port        = 5000
+    to_port          = 5000
+    protocol         = "tcp"
+    security_groups  = [aws_security_group.postgresql_security_group.id]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+resource "aws_security_group" "postgresql_security_group" {
+  name = "postgresql-security-group"
+  tags = {
+    Name = "postgresql Security Group"
+  }
+
+  ingress {
+    from_port   = 5432
+    to_port     = 5432
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
@@ -67,13 +102,13 @@ resource "aws_security_group" "app_security_group" {
 }
 
 output "react_security_group_id" {
-  value = aws_security_group.app_security_group[0].id
+  value = aws_security_group.react_security_group.id
 }
 
 output "nodejs_security_group_id" {
-  value = aws_security_group.app_security_group[1].id
+  value = aws_security_group.nodejs_security_group.id
 }
 
 output "postgresql_security_group_id" {
-  value = aws_security_group.app_security_group[2].id
+  value = aws_security_group.postgresql_security_group.id
 }
