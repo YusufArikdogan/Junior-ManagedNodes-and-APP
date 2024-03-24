@@ -49,13 +49,6 @@
         name: docker
         state: started
         enabled: yes 
-
-    # - name: Login to Docker Hub
-    #   ansible.builtin.docker_login:
-    #     username: "{{ lookup('jenkins_credentials', 'credential_id=my_dockerhub_credential_id', 'username') }}"
-    #     password: "{{ lookup('jenkins_credentials', 'credential_id=my_dockerhub_credential_id', 'password') }}"
-
-
 - name: PostgreSQL Database Configuration
   hosts: _ansible_postgresql
   become: true
@@ -136,4 +129,4 @@
         image: "{{ image_name }}"
         state: started
         ports:
-          - "3000:3000"
+          - "80:3000"
