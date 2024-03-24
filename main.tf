@@ -54,7 +54,7 @@ resource "aws_security_group" "app_security_group" {
       to_port         = ingress.value == "postgresql" ? 5432 : ingress.value == "nodejs" ? 5000 : 80
       protocol        = "tcp"
       cidr_blocks     = ingress.value == "react" ? ["0.0.0.0/0"] : []
-      security_groups = ingress.value == "nodejs" ? [aws_security_group.app_security_group[(count.index + 1) % length(var.tags)].id] : []
+      security_groups = ingress.value == "nodejs" ? [aws_security_group.app_security_group[2].id] : []  # "nodejs" grubu sadece "postgresql" grubuna izin verecek
     }
   }
 
