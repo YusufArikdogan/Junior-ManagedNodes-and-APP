@@ -97,6 +97,15 @@ pipeline {
             }
         }
 
+        stage('Output IPs') {
+        steps {
+            script {
+                def reactIP = sh(script: 'terraform output -raw node_public_ip', returnStdout: true).trim()
+
+                echo "ReactAppURL: http://${nodeIP}"
+            }
+        }
+
         stage('Destroy the infrastructure') {
             steps {
                 timeout(time:5, unit:'DAYS'){
@@ -106,15 +115,6 @@ pipeline {
                 docker image prune -af
                 terraform destroy --auto-approve
                 """
-            }
-        }
-
-        stage('Output IPs') {
-        steps {
-            script {
-                def reactIP = sh(script: 'terraform output -raw node_public_ip', returnStdout: true).trim()
-
-                echo "ReactAppURL: http://${nodeIP}"
             }
         }
     }
