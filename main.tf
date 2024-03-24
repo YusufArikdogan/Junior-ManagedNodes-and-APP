@@ -11,12 +11,12 @@ provider "aws" {
   region = "us-east-1"
 }
 
-variable "user" {
-  default = "yusuf"
+variable "tags" {
+  default = ["postgresql", "nodejs", "react"]
 }
 
-variable "tags" {
-  default = ["react", "nodejs", "postgresql"]
+variable "user" {
+  default = "yusuf"
 }
 
 resource "aws_instance" "managed_nodes" {
@@ -24,7 +24,7 @@ resource "aws_instance" "managed_nodes" {
   count                  = 3
   instance_type          = "t2.micro"
   key_name               = "yusufkey"
-  vpc_security_group_ids = [aws_security_group.react_security_group.id, aws_security_group.nodejs_security_group.id, aws_security_group.postgresql_security_group.id]
+  vpc_security_group_ids = [aws_security_group.tf-sec-gr.id]
   iam_instance_profile   = "junior-level-profile-${var.user}"
   tags = {
     Name        = "ansible_${element(var.tags, count.index)}"
@@ -32,77 +32,53 @@ resource "aws_instance" "managed_nodes" {
     environment = "development_1"
   }
   
-  user_data = <<-EOF
-    #!/bin/bash
-    yum update -y
-    EOF
+  user_data = <<EOF
+  #!/bin/bash
+  dnf update -y
+  EOF
 }
 
-resource "aws_security_group" "react_security_group" {
-  name = "react-security-group"
+resource "aws_security_group" "tf-sec-gr" {
+  name = "junior-level-sec-gr"
   tags = {
-    Name = "react Security Group"
+    Name = "junior-level-sec-gr"
   }
 
   ingress {
-    from_port   = 80
-    to_port     = 80
+    from_port   = 22
     protocol    = "tcp"
+    to_port     = 22
     cidr_blocks = ["0.0.0.0/0"]
   }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-}
-
-resource "aws_security_group" "nodejs_security_group" {
-  name = "nodejs-security-group"
-  tags = {
-    Name = "nodejs Security Group"
-  }
-
   ingress {
-    from_port        = 5000
-    to_port          = 5000
-    protocol         = "tcp"
-    security_groups  = [aws_security_group.postgresql_security_group.id]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
+    from_port   = 5000
+    protocol    = "tcp"
+    to_port     = 5000
     cidr_blocks = ["0.0.0.0/0"]
   }
-}
-
-resource "aws_security_group" "postgresql_security_group" {
-  name = "postgresql-security-group"
-  tags = {
-    Name = "postgresql Security Group"
+  ingress {
+    from_port   = 3000
+    protocol    = "tcp"
+    to_port     = 3000
+    cidr_blocks = ["0.0.0.0/0"]
   }
-
   ingress {
     from_port   = 5432
-    to_port     = 5432
     protocol    = "tcp"
+    to_port     = 5432
     cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
     from_port   = 0
+    protocol    = -1
     to_port     = 0
-    protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
 
 output "react_ip" {
-  value = "http://${aws_instance.managed_nodes[0].public_ip}:3000"
+  value = "http://${aws_instance.managed_nodes[2].public_ip}:3000"
 }
 
 output "node_public_ip" {
@@ -110,5 +86,5 @@ output "node_public_ip" {
 }
 
 output "postgre_private_ip" {
-  value = aws_instance.managed_nodes[2].private_ip
+  value = aws_instance.managed_nodes[0].private_ip
 }
