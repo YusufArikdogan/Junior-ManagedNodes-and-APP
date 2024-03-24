@@ -128,5 +128,5 @@
         name: "{{ container_name }}"
         image: "{{ image_name }}"
         state: started
-        ports:
+        ports:  
           - "80:3000"
