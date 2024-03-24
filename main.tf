@@ -15,12 +15,16 @@ variable "user" {
   default = "yusuf"
 }
 
+variable "tags" {
+  default = ["react", "nodejs", "postgresql"]
+}
+
 resource "aws_instance" "managed_nodes" {
   ami                    = "ami-0230bd60aa48260c6"
   count                  = 3
   instance_type          = "t2.micro"
   key_name               = "yusufkey"
-  vpc_security_group_ids = [aws_security_group.managed_nodes_sec_group[0].id]
+  vpc_security_group_ids = [aws_security_group.app_security_group[0].id]
   iam_instance_profile   = "junior-level-profile-${var.user}"
   tags = {
     Name        = "ansible_${element(var.tags, count.index)}"
@@ -34,28 +38,23 @@ resource "aws_instance" "managed_nodes" {
     EOF
 }
 
-variable "managed_nodes" {
-  type    = list(string)
-  default = ["react", "nodejs", "postgresql"]
-}
+resource "aws_security_group" "app_security_group" {
+  count = length(var.tags)
 
-resource "aws_security_group" "managed_nodes_sec_group" {
-  count = length(var.managed_nodes)
-
-  name = "${var.managed_nodes[count.index]}-security-group"
+  name = "${var.tags[count.index]}-security-group"
   tags = {
-    Name = "${var.managed_nodes[count.index]} Security Group"
+    Name = "${var.tags[count.index]} Security Group"
   }
 
   dynamic "ingress" {
-    for_each = var.managed_nodes
+    for_each = var.tags
 
     content {
-      from_port       = ingress.value == "react" ? 80 : ingress.value == "nodejs" ? 5000 : 5432
-      to_port         = ingress.value == "react" ? 80 : ingress.value == "nodejs" ? 5000 : 5432
+      from_port       = ingress.value == "postgresql" ? 5432 : ingress.value == "nodejs" ? 5000 : 80
+      to_port         = ingress.value == "postgresql" ? 5432 : ingress.value == "nodejs" ? 5000 : 80
       protocol        = "tcp"
-      cidr_blocks     = ingress.value == "postgresql" ? ["0.0.0.0/0"] : []
-      security_groups = ingress.value != "postgresql" ? [aws_security_group.managed_nodes_sec_group[(count.index + 1) % length(var.managed_nodes)].id] : []
+      cidr_blocks     = ingress.value == "react" ? ["0.0.0.0/0"] : []
+      security_groups = ingress.value == "nodejs" ? [aws_security_group.app_security_group[(count.index + 1) % length(var.tags)].id] : []
     }
   }
 
@@ -67,14 +66,14 @@ resource "aws_security_group" "managed_nodes_sec_group" {
   }
 }
 
-output "react_ip" {
-  value = "http://${aws_instance.managed_nodes[2].public_ip}:80"
+output "react_security_group_id" {
+  value = aws_security_group.app_security_group[0].id
 }
 
-output "node_public_ip" {
-  value = aws_instance.managed_nodes[1].public_ip
+output "nodejs_security_group_id" {
+  value = aws_security_group.app_security_group[1].id
 }
 
-output "postgre_private_ip" {
-  value = aws_instance.managed_nodes[0].private_ip
+output "postgresql_security_group_id" {
+  value = aws_security_group.app_security_group[2].id
 }
