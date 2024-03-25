@@ -6,7 +6,7 @@ This project aims to deploy and manage managed nodes through a control node crea
 
 1. **Terraform Configuration:**
    - Modify the necessary variables in `main.tf`:
-     - Update the AWS region at line 11.
+     - Update the AWS region at line 11 (if you work in different region)
      - Change the user at line 19.
      - Update the `key_name` at line 26.
 
