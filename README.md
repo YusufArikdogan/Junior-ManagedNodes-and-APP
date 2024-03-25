@@ -23,3 +23,30 @@ This project aims to deploy and manage managed nodes through a control node crea
      - Update DockerHub repository names at lines 57, 87, and 113.
 
 By implementing these changes, we ensure smooth deployment, management, and continuous integration of our application.
+
+### Setting up Jenkins Pipeline
+
+After completing the necessary changes, we need to push these files to your GitHub repository, ensuring that we do not include any secret files like key.pem.
+
+Once everything is ready, we can transition to the Jenkins interface created in our previous project.
+
+1. **Creating a New Pipeline:**
+   - Navigate to "New Item" and create a new pipeline.
+   - Give your pipeline a name and select "Pipeline" from the options. Proceed.
+
+2. **Configuring Pipeline:**
+   - Under the "Pipeline Script" section, select "Pipeline from SCM."
+   - Choose Git as the SCM.
+   - Paste the URL of your GitHub repository where you pushed the files.
+   - Select the token created earlier.
+   - Optionally, set up triggers for the pipeline to run on push events.
+   - Click "Apply" and then "Save."
+
+3. **Building the Pipeline:**
+   - Click on "Build Now" to initiate the pipeline.
+   - The pipeline will create the infrastructure and application step by step, which may take some time.
+
+Once the pipeline is complete, you can access the user interface of your application via `react_node-public_ip:3000` in the AWS console.
+
+Congratulations, your application is up and running! 
+
