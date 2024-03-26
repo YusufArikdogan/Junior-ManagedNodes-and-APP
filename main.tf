@@ -24,6 +24,11 @@ variable "user" {
   default = "yusuf"
 }
 
+variable "build_number" {
+  description = "The build number from Jenkins"
+  type        = string
+}
+
 resource "aws_instance" "managed_nodes" {
   ami                    = "ami-0230bd60aa48260c6"
   count                  = 3
@@ -32,7 +37,7 @@ resource "aws_instance" "managed_nodes" {
   vpc_security_group_ids = [aws_security_group.tf-sec-gr.id]
   iam_instance_profile   = "junior-level-profile-${var.user}"
   tags = {
-    Name        = "ansible_${element(var.tags, count.index)}"
+    Name        = "ansible_${element(var.tags, count.index)}_${var.build_number}"
     stack       = "junior_level"
     environment = "development_1"
   }
@@ -44,9 +49,9 @@ resource "aws_instance" "managed_nodes" {
 }
 
 resource "aws_security_group" "tf-sec-gr" {
-  name = "junior-level-sec-gr"
+  name = "junior-level-sec-gr-${var.build_number}"
   tags = {
-    Name = "junior-level-sec-gr"
+    Name = "junior-level-sec-gr-${var.build_number}"
   }
 
   ingress {
