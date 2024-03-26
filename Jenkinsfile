@@ -47,14 +47,14 @@ pipeline {
             }
         }
 
-        stage('Destroy Old Infrastructure') {
-            steps {
-                echo 'Destroying the Old Infrastructure...'
-                sh """
-                terraform destroy --auto-approve
-                """
-            }
-        }
+        // stage('Destroy Old Infrastructure') {
+        //     steps {
+        //         echo 'Destroying the Old Infrastructure...'
+        //         sh """
+        //         terraform destroy --auto-approve
+        //         """
+        //     }
+        // }
     }
 
     post {
