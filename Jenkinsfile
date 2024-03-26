@@ -53,9 +53,13 @@ pipeline {
                     def destroyNeeded = sh(script: "terraform state list", returnStdout: true).trim().contains("aws_instance.managed_nodes")
                     if (destroyNeeded) {
                         echo 'Destroying the Old Infrastructure...'
-                        sh """
-                        terraform destroy --auto-approve
-                        """
+                        try {
+                            sh """
+                            terraform destroy --auto-approve
+                            """
+                        } catch (err) {
+                            echo 'Error occurred during destroy, but proceeding...'
+                        }
                     } else {
                         echo 'No old infrastructure to destroy.'
                     }
