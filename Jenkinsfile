@@ -47,14 +47,21 @@ pipeline {
             }
         }
 
-        // stage('Destroy Old Infrastructure') {
-        //     steps {
-        //         echo 'Destroying the Old Infrastructure...'
-        //         sh """
-        //         terraform destroy --auto-approve
-        //         """
-        //     }
-        // }
+        stage('Destroy Old Infrastructure') {
+            steps {
+                script {
+                    def destroyNeeded = sh(script: "terraform state list", returnStdout: true).trim().contains("aws_instance.managed_nodes")
+                    if (destroyNeeded) {
+                        echo 'Destroying the Old Infrastructure...'
+                        sh """
+                        terraform destroy --auto-approve
+                        """
+                    } else {
+                        echo 'No old infrastructure to destroy.'
+                    }
+                }
+            }
+        }
     }
 
     post {
