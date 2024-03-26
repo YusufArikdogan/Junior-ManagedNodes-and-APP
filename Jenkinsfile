@@ -47,14 +47,10 @@ pipeline {
             }
         }
 
-        stage('Destroy the Infrastructure') {
+        stage('Destroy Old Infrastructure') {
             steps {
-                timeout(time: 5, unit: 'DAYS') {
-                    input message: 'Approve terminate'
-                }
-                echo 'Destroying the Infrastructure...'
+                echo 'Destroying the Old Infrastructure...'
                 sh """
-                docker image prune -af
                 terraform destroy --auto-approve
                 """
             }
