@@ -5,20 +5,28 @@ This project aims to deploy and manage managed nodes through a control node crea
 #### Initial Configuration Changes:
 
 1. **Terraform Configuration:**
-   - Modify the necessary variables in `main.tf`:
-     - Update the AWS region at line 11 (if you work in different region)
-     - Change the user at line 19.
-     - Update the `key_name` at line 26.
+   - Before modifying the necessary variables in main.tf, you need to create an S3 bucket on AWS. Follow these steps:  
+      -Log in to the AWS Management Console.  
+      -Navigate to the S3 service.  
+      -Click on the "Create bucket" button.  
+      -Enter a unique bucket name and select the region where you want to create the bucket.  
+      -Choose your preferred settings for versioning, logging, and tags, or leave them as default.  
+      -Click on the "Create bucket" button to create the S3 bucket.  
+   - Once you've created the S3 bucket, you can proceed to modify the necessary variables in main.tf:
+     - Update the bucket name at line 9.
+     - Update the AWS region at line 16 (if you work in different region)  
+     - Change the user at line 28.  
+     - Update the `key_name` at line 36.  
 
-2. **Ansible Configuration:**
+3. **Ansible Configuration:**
    - Update `ansible.cfg`:
      - Replace `private_key_file` with your `keyname.pem`.
 
-3. **Jenkins Pipeline:**
+4. **Jenkins Pipeline:**
    - Edit `Jenkinsfile`:
      - Update lines 48, 49, 50, 60, 61, and 62 with the appropriate DockerHub username, replacing `insaniso`.
 
-4. **Docker Configuration:**
+5. **Docker Configuration:**
    - In `Junior-Level.yaml`:
      - Update DockerHub repository names at lines 57, 87, and 113.
 
