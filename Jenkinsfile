@@ -12,17 +12,22 @@ pipeline {
             }
         }
         
-        stage('Terraform Plan & Apply') {
+        stage('Check Existing Infrastructure') {
             steps {
                 script {
-                    echo 'Initializing Terraform...'
-                    sh 'terraform init'
+                    def ec2Instances = sh(
+                        script: 'aws ec2 describe-instances --filters "Name=tag:Name,Values=ansible_postgresql" "Name=instance-state-name,Values=running" --query "Reservations[*].Instances[*].PublicIpAddress" --output text',
+                        returnStdout: true
+                    ).trim()
                     
-                    def buildNumber = env.BUILD_NUMBER
-                    echo "Using Jenkins build number: ${buildNumber}"
-                    
-                    echo 'Applying Terraform changes...'
-                    sh "terraform apply --auto-approve -var 'build_number=${buildNumber}'"
+                    if (ec2Instances) {
+                        echo "Existing EC2 instances found. Skipping Terraform initialization and apply."
+                    } else {
+                        echo "No existing EC2 instances found. Initializing Terraform."
+                        sh 'terraform init'
+                        echo "Applying Terraform changes."
+                        sh 'terraform apply --auto-approve'
+                    }
                 }
             }
         }
