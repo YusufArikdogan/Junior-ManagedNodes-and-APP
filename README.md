@@ -32,7 +32,7 @@ This project aims to deploy and manage managed nodes through a control node crea
 
 4. **Jenkins Pipeline:**
    - Edit `Jenkinsfile`:
-     - Update lines 48, 49, 50, 60, 61, and 62 with the appropriate DockerHub username, replacing `insaniso`.
+     - Update lines 44, 45, 46, 56, 57, and 58 with the appropriate DockerHub username, replacing `insaniso`.
 
 5. **Docker Configuration:**
    - In `Junior-Level.yaml`:
