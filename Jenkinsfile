@@ -13,25 +13,25 @@ pipeline {
         }
         
       stage('Terraform Plan & Apply') {
-            steps {
-                script {
-                    echo 'Initializing Terraform...'
-                    def initResult = sh(script: 'terraform init -reconfigure', returnStatus: true)
-                    if (initResult != 0) {
-                        error 'Terraform initialization failed. Please check and try again.'
-                    }
-                    
-                    def buildNumber = env.BUILD_NUMBER
-                    echo "Using Jenkins build number: ${buildNumber}"
-                    
-                    echo 'Applying Terraform changes...'
-                    def applyResult = sh(script: "terraform apply --auto-approve -var 'build_number=${buildNumber}'", returnStatus: true)
-                    if (applyResult != 0) {
-                        error 'Terraform apply failed. Please check and try again.'
-                    }
+        steps {
+            script {
+                echo 'Initializing Terraform...'
+                def initResult = sh(script: 'terraform init -reconfigure', returnStatus: true)
+                if (initResult != 0) {
+                    error 'Terraform initialization failed. Please check and try again.'
+                }
+                
+                def buildNumber = env.BUILD_NUMBER
+                echo "Using Jenkins build number: ${buildNumber}"
+                
+                echo 'Applying Terraform changes...'
+                def applyResult = sh(script: "terraform apply --auto-approve -var 'build_number=${buildNumber}'", returnStatus: true)
+                if (applyResult != 0) {
+                    error 'Terraform apply failed. Please check and try again.'
                 }
             }
         }
+    }
         stage('Build App Docker Image') {
             steps {
                 echo 'Building App Image'
