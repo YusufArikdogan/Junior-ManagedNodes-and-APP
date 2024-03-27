@@ -85,26 +85,28 @@ pipeline {
                 timeout(time: 5, unit: 'DAYS') {
                     input message: 'Approve terminate'
                 }
-                sh """
-                docker image prune -af
-                terraform destroy --auto-approve
-                """
+                script {
+                    def buildNumber = env.BUILD_NUMBER
+                    sh """
+                    docker image prune -af
+                    terraform destroy --auto-approve -var 'build_number=${buildNumber}'
+                    """
+                }
             }
         }
-
     }
 
     post {
         always {
             echo 'Deleting all local images'
             sh 'docker image prune -af'
-            sh 'terraform destroy --auto-approve'
+            sh "terraform destroy --auto-approve -var 'build_number=${buildNumber}'"
         }
         failure {
             echo 'Clean-up due to failure'
             sh """
                 docker image prune -af
-                terraform destroy --auto-approve
+                terraform destroy --auto-approve -var 'build_number=${buildNumber}'
                 """
         }
     }
