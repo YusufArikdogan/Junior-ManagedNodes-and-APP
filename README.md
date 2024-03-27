@@ -2,9 +2,17 @@
 
 This project aims to deploy and manage managed nodes through a control node created with Terraform. Additionally, it facilitates the creation of Docker images for our application and pushes them to DockerHub. Furthermore, it ensures the setup of the infrastructure using Ansible with the created images. For continuous integration, we will utilize Jenkins pipelines.
 
-#### Initial Configuration Changes:
+#### Initial Configuration Changes:  
+1. **Cloning the Repository:  
+   Before proceeding with the configuration changes, create a new repository on your preferred Git hosting platform.
+   Then clone this repository to your local machine.
+   ``` 
+   git clone <repository_url>  
+   cd <cloned_repository_directory>
+   ``` 
+   Now that you have cloned the repository to your local machine, you can begin making changes and customizations according to the following modifications:
 
-1. **Terraform Configuration:**
+2. **Terraform Configuration:**
    - Before modifying the necessary variables in main.tf, you need to create an S3 bucket on AWS. Follow these steps:  
       -Log in to the AWS Management Console.  
       -Navigate to the S3 service.  
