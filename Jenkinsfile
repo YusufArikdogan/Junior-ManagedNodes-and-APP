@@ -12,11 +12,11 @@ pipeline {
             }
         }
         
-        stage('Terraform Plan & Apply') {
+       stage('Terraform Plan & Apply') {
             steps {
                 script {
                     echo 'Initializing Terraform...'
-                    sh 'terraform init'
+                    sh 'terraform init -migrate-state'
                     
                     def buildNumber = env.BUILD_NUMBER
                     echo "Using Jenkins build number: ${buildNumber}"
@@ -26,6 +26,7 @@ pipeline {
                 }
             }
         }
+
 
         stage('Build App Docker Image') {
             steps {
