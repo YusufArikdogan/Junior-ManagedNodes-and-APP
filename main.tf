@@ -5,6 +5,11 @@ terraform {
       version = "~> 4.0"
     }
   }
+  backend "s3" {
+    bucket = "junior-level-backend"
+    key = "backend/tf-backend-junior-.tfstate"
+    region = "us-east-1"
+  }
 }
 
 provider "aws" {
