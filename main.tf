@@ -7,7 +7,7 @@ terraform {
   }
   backend "s3" {
     bucket = "junior-level-backend"
-    key = "backend/tf-backend-junior.tfstate"
+    key = "backend/tf-backend-junior-${var.build_number}.tfstate"
     region = "us-east-1"
   }
 }
