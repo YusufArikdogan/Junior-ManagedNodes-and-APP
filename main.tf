@@ -24,6 +24,10 @@ variable "user" {
   default = "yusuf"
 }
 
+variable "build_number" {
+  description = "Jenkins build number"
+}
+
 resource "aws_instance" "managed_nodes" {
   ami                    = "ami-0230bd60aa48260c6"
   count                  = 3
