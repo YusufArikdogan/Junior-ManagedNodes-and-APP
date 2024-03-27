@@ -43,7 +43,7 @@
         name: ec2-user
         groups: docker
         append: yes
-
+   
     - name: Start Docker service
       ansible.builtin.service:
         name: docker
