@@ -7,13 +7,17 @@ terraform {
   }
   backend "s3" {
     bucket = "junior-level-backend"
-    key = "backend/tf-backend-junior-${var.build_number}.tfstate"
+    key    = "backend/tf-backend-junior.tfstate"
     region = "us-east-1"
   }
 }
 
 provider "aws" {
   region = "us-east-1"
+}
+
+variable "build_number" {
+  description = "The build number for Terraform state"
 }
 
 variable "tags" {
@@ -24,9 +28,6 @@ variable "user" {
   default = "yusuf"
 }
 
-variable "build_number" {
-  description = "Jenkins build number"
-}
 
 resource "aws_instance" "managed_nodes" {
   ami                    = "ami-0230bd60aa48260c6"
