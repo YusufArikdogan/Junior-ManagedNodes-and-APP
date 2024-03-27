@@ -35,7 +35,7 @@ resource "aws_instance" "managed_nodes" {
   instance_type          = "t2.micro"
   key_name               = "yusufkey"
   vpc_security_group_ids = [aws_security_group.tf-sec-gr.id]
-  iam_instance_profile   = "junior-managed-profile-${var.user}"
+  iam_instance_profile   = "junior-level-profile-${var.user}"
   tags = {
     Name        = "ansible_${element(var.tags, count.index)}_${var.build_number}"
     stack       = "junior_level"
