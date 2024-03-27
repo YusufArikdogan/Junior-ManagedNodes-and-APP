@@ -12,11 +12,14 @@ pipeline {
             }
         }
         
-        stage('Terraform Plan & Apply') {
+       stage('Terraform Plan & Apply') {
             steps {
                 script {
                     echo 'Initializing Terraform...'
-                    sh 'terraform init'
+                    def initResult = sh(script: 'terraform init -reconfigure', returnStatus: true)
+                    if (initResult != 0) {
+                        error 'Terraform initialization failed. Please check and try again.'
+                    }
                     
                     def buildNumber = env.BUILD_NUMBER
                     echo "Using Jenkins build number: ${buildNumber}"
