@@ -3,7 +3,7 @@
 This project aims to deploy and manage managed nodes through a control node created with Terraform. Additionally, it facilitates the creation of Docker images for our application and pushes them to DockerHub. Furthermore, it ensures the setup of the infrastructure using Ansible with the created images. For continuous integration, we will utilize Jenkins pipelines.
 
 #### Initial Configuration Changes:  
-1. **Cloning the Repository:  
+1. **Cloning the Repository:** 
    Before proceeding with the configuration changes, create a new repository on your preferred Git hosting platform.
    Then clone this repository to your local machine.
    ``` 
