@@ -12,7 +12,7 @@ pipeline {
             }
         }
         
-       stage('Terraform Plan & Apply') {
+      stage('Terraform Plan & Apply') {
             steps {
                 script {
                     echo 'Initializing Terraform...'
@@ -25,11 +25,13 @@ pipeline {
                     echo "Using Jenkins build number: ${buildNumber}"
                     
                     echo 'Applying Terraform changes...'
-                    sh "terraform apply --auto-approve -var 'build_number=${buildNumber}'"
+                    def applyResult = sh(script: "terraform apply --auto-approve -var 'build_number=${buildNumber}'", returnStatus: true)
+                    if (applyResult != 0) {
+                        error 'Terraform apply failed. Please check and try again.'
+                    }
                 }
             }
         }
-
         stage('Build App Docker Image') {
             steps {
                 echo 'Building App Image'
