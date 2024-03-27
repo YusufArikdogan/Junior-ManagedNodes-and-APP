@@ -7,13 +7,17 @@ terraform {
   }
   backend "s3" {
     bucket = "junior-level-backend"
-    key = "backend/tf-backend-junior-.tfstate"
+    key = "backend/tf-backend-junior.tfstate"
     region = "us-east-1"
   }
 }
 
 provider "aws" {
   region = "us-east-1"
+}
+
+variable "tags" {
+  default = ["postgresql", "nodejs", "react"]
 }
 
 variable "user" {
@@ -25,7 +29,7 @@ resource "aws_instance" "managed_nodes" {
   count                  = 3
   instance_type          = "t2.micro"
   key_name               = "yusufkey"
-  vpc_security_group_ids = [aws_security_group.managed_nodes_sec_group[0].id]
+  vpc_security_group_ids = [aws_security_group.tf-sec-gr.id]
   iam_instance_profile   = "junior-level-profile-${var.user}"
   tags = {
     Name        = "ansible_${element(var.tags, count.index)}"
@@ -33,47 +37,53 @@ resource "aws_instance" "managed_nodes" {
     environment = "development_1"
   }
   
-  user_data = <<-EOF
-    #!/bin/bash
-    yum update -y
-    EOF
+  user_data = <<EOF
+  #!/bin/bash
+  dnf update -y
+  EOF
 }
 
-variable "managed_nodes" {
-  type    = list(string)
-  default = ["react", "nodejs", "postgresql"]
-}
-
-resource "aws_security_group" "managed_nodes_sec_group" {
-  count = length(var.managed_nodes)
-
-  name = "${var.managed_nodes[count.index]}-security-group"
+resource "aws_security_group" "tf-sec-gr" {
+  name = "junior-managed-sec-gr"
   tags = {
-    Name = "${var.managed_nodes[count.index]} Security Group"
+    Name = "junior-managed-sec-gr"
   }
 
-  dynamic "ingress" {
-    for_each = var.managed_nodes
-
-    content {
-      from_port       = ingress.value == "react" ? 80 : ingress.value == "nodejs" ? 5000 : 5432
-      to_port         = ingress.value == "react" ? 80 : ingress.value == "nodejs" ? 5000 : 5432
-      protocol        = "tcp"
-      cidr_blocks     = ingress.value == "postgresql" ? ["0.0.0.0/0"] : []
-      security_groups = ingress.value != "postgresql" ? [aws_security_group.managed_nodes_sec_group[(count.index + 1) % length(var.managed_nodes)].id] : []
-    }
+  ingress {
+    from_port   = 22
+    protocol    = "tcp"
+    to_port     = 22
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress {
+    from_port   = 5000
+    protocol    = "tcp"
+    to_port     = 5000
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress {
+    from_port   = 3000
+    protocol    = "tcp"
+    to_port     = 3000
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress {
+    from_port   = 5432
+    protocol    = "tcp"
+    to_port     = 5432
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
     from_port   = 0
+    protocol    = -1
     to_port     = 0
-    protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
 
 output "react_ip" {
-  value = "http://${aws_instance.managed_nodes[2].public_ip}:80"
+  value = "http://${aws_instance.managed_nodes[2].public_ip}:3000"
 }
 
 output "node_public_ip" {
